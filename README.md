@@ -5,7 +5,7 @@
 
 # Déjà vu
 
-Quickly detect already witnessed data entries.
+Quickly detect already witnessed data.
 
 Memory of witnessed data entries is limited and oldest are forgotten.
 It may give false negatives, but not false positives. Library is thread
