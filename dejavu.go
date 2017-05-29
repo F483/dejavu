@@ -27,10 +27,10 @@ func NewDejaVu(size int) *DejaVu {
 	}
 }
 
-// Add data to memory. Returns true if previously seen, may give
-// false negatives but not false positives.
-func (d *DejaVu) Witness(data []byte) bool {
-	dataDigest := sha256.Sum256(data)
+// Same as Witness method but bypasses hashing the data. Use this to
+// to improve performance if you already happen to have the sha256 digest
+// of the data entry.
+func (d *DejaVu) WitnessDigest(dataDigest [sha256.Size]byte) bool {
 	d.mutex.Lock()
 	_, familiar := d.lookup[dataDigest] // check if previously seen
 
@@ -47,4 +47,10 @@ func (d *DejaVu) Witness(data []byte) bool {
 
 	d.mutex.Unlock()
 	return familiar
+}
+
+// Add data entry to memory. Returns true if previously seen, may give
+// false negatives but not false positives.
+func (d *DejaVu) Witness(data []byte) bool {
+	return d.WitnessDigest(sha256.Sum256(data))
 }

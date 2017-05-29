@@ -1,5 +1,7 @@
 # Déjà vu
 
+TODO add build/coverage/issues badges
+
 A library to quickly detect already witnessed data entries.
 
 Memory of witnessed data entries is limited and oldest are forgotten.
