@@ -1,5 +1,3 @@
-# TODO add documentation generation
-
 
 setup:
 	go get github.com/axw/gocov/gocov
@@ -16,6 +14,10 @@ doc:
 
 test:
 	go test -v
+
+
+benchmark:
+	# TODO benchmark
 
 
 coverage:
