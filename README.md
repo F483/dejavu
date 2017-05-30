@@ -2,6 +2,8 @@
 [![Coverage](https://coveralls.io/repos/f483/dejavu/badge.svg)](https://coveralls.io/r/f483/dejavu)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/f483/dejavu/master/LICENSE)
 [![Issues](https://img.shields.io/github/issues/f483/dejavu.svg)](https://github.com/f483/dejavu/issues)
+[![Go Report Card](https://goreportcard.com/badge/github.com/f483/dejavu)](https://goreportcard.com/report/github.com/f483/dejavu)
+
 
 # Déjà vu
 

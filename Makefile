@@ -16,8 +16,16 @@ test:
 	go test -v
 
 
+lint:
+	# TODO golint
+
+
 benchmark:
 	# TODO benchmark
+
+
+example:
+	go run example.go
 
 
 coverage:
