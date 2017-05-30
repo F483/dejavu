@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/F483/dejavu.svg)](https://travis-ci.org/f483/dejavu)
-[![Coverage](https://coveralls.io/repos/F483/dejavu/badge.svg)](https://coveralls.io/r/F483/dejavu)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/F483/dejavu/master/LICENSE)
-[![Issues](https://img.shields.io/github/issues/F483/dejavu.svg)](https://github.com/F483/dejavu/issues)
+[![Build Status](https://travis-ci.org/f483/dejavu.svg)](https://travis-ci.org/f483/dejavu)
+[![Coverage](https://coveralls.io/repos/f483/dejavu/badge.svg)](https://coveralls.io/r/f483/dejavu)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/f483/dejavu/master/LICENSE)
+[![Issues](https://img.shields.io/github/issues/f483/dejavu.svg)](https://github.com/f483/dejavu/issues)
 
 # Déjà vu
 
