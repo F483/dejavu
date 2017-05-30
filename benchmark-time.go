@@ -49,7 +49,7 @@ func drawChart(res http.ResponseWriter, req *http.Request) {
 			Style:     chart.StyleShow(),
 		},
 		YAxis: chart.YAxis{
-			Name:      "time in seconds",
+			Name:      "seconds to witness 1000000 entries",
 			NameStyle: chart.StyleShow(),
 			Style:     chart.StyleShow(),
 		},

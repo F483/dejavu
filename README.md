@@ -51,17 +51,15 @@ func main() {
 
 # Performance
 
-## Constant witness time: O(1)
-
-Time to witness 1000000 data entries:
+### Constant witness time: O(1)
 
 ![Benchmark Time](https://github.com/f483/dejavu/raw/master/benchmark-time.png)
 
+### Linear memory usage: O(n)
 
-## Linear memory usage per stored entrie: O(n)
-
-Memory usage for 
 ![Benchmark Memory](https://github.com/f483/dejavu/raw/master/benchmark-memory.png)
+
+
 
 # Support
 
