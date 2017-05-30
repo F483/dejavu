@@ -3,6 +3,8 @@
 [![Issues](https://img.shields.io/github/issues/f483/dejavu.svg)](https://github.com/f483/dejavu/issues)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/f483/dejavu/master/LICENSE)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/f483/dejavu)
+[![Donate PayPal](https://img.shields.io/badge/Donate-PayPal-orange.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=fabian%2ebarkhau%40gmail%2ecom&lc=DE&item_name=https%3a%2f%2fgithub%2ecom%2fF483%2fdejavu&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
+[![Donate Bitcoin](https://img.shields.io/badge/Donate-Bitcoin-orange.svg)](https://blockchain.info/address/13nAHLVo5GRdwVeLxEjbgEvyusrjdQogdD)
 
 
 # Déjà vu
@@ -58,9 +60,3 @@ func main() {
 ### Linear memory usage: O(n)
 
 ![Benchmark Memory](https://github.com/f483/dejavu/raw/master/benchmark-memory.png)
-
-
-
-# Support
-
-TODO donation text and bitcoin/paypal links
