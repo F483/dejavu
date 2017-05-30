@@ -20,10 +20,6 @@ lint:
 	# TODO golint
 
 
-benchmark:
-	# TODO benchmark
-
-
 example:
 	go run example.go
 

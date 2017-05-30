@@ -51,8 +51,13 @@ func main() {
 
 # Performance
 
-TODO benchmark/plot performance and memory usage
+ * Constant witness time: O(1)
+ * Linear memory usage for size: O(n)
 
+
+*Time to witness 1000000 data entries:*
+
+![Benchmark Time](https://github.com/f483/dejavu/raw/master/benchmark-time.png)
 
 # Support
 
