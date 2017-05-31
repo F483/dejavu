@@ -5,13 +5,13 @@ import (
 	"sync"
 )
 
-// DejaVu witnesses data and recall if seen before.
+// DejaVu witnesses data and recalls if seen before.
 type DejaVu interface {
 
 	// Witness data and add to memory. Returns true if previously seen.
 	Witness(data []byte) bool
 
-	// WitnessDigest is equivelant to the Winness method but bypasses hashing
+	// WitnessDigest is equivalent to the Winness method but bypasses hashing
 	// the data. Use this to improve performance if you already happen
 	// to have the sha256 digest.
 	WitnessDigest(dataDigest [sha256.Size]byte) bool
