@@ -71,16 +71,17 @@ func (d *deterministic) Witness(data []byte) bool {
 //////////////////////////////////
 
 type probabilistic struct {
-	filters            [2]*bbloom.Bloom // alternatingly replaced every size entries
+	filters            [2]*bbloom.Bloom // alternatingly replaced when maxed
 	entrieLimit        uint             // filter size
-	falsePositiveRatio float64          //
+	falsePositiveRatio float64          // remember for buffer switch
 	index              int              // current filter index
-	entries            uint             // entries added to currently indexed filter
+	entries            uint             // entries in currently indexed filter
 	mutex              *sync.Mutex
 }
 
 // NewProbabilistic creates a probabilistic DejaVu memory. Probably remembers
 // most recent entries within given entrie limit and false positive ratio.
+// False positive ratio should be between 0.0 and 1.0.
 func NewProbabilistic(entrieLimit uint, falsePositiveRatio float64) DejaVu {
 	a := bbloom.New(float64(entrieLimit), falsePositiveRatio)
 	b := bbloom.New(float64(entrieLimit), falsePositiveRatio)

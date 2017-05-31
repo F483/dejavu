@@ -60,18 +60,6 @@ func main() {
 
 # Performance
 
-## Constant witness time: O(1)
-
-### Deterministic
-
-![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/deterministic-time.png)
-
-### Probabilistic
-
-0.000001 chance of false positive.
-
-![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/probabilistic-time.png)
-
 ## Linear memory usage: O(n)
 
 ### Deterministic
@@ -84,4 +72,16 @@ func main() {
 
 ![Benchmark Memory](https://github.com/f483/dejavu/raw/master/_benchmark/probabilistic-memory.png)
 
+
+## Constant witness time: O(1)
+
+### Deterministic
+
+![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/deterministic-time.png)
+
+### Probabilistic
+
+0.000001 chance of false positive.
+
+![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/probabilistic-time.png)
 
