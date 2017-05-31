@@ -55,8 +55,8 @@ func main() {
 
 ### Constant witness time: O(1)
 
-![Benchmark Time](https://github.com/f483/dejavu/raw/master/benchmark-time.png)
+![Benchmark Time](https://github.com/f483/dejavu/raw/master/benchmark/time.png)
 
 ### Linear memory usage: O(n)
 
-![Benchmark Memory](https://github.com/f483/dejavu/raw/master/benchmark-memory.png)
+![Benchmark Memory](https://github.com/f483/dejavu/raw/master/benchmark/memory.png)
