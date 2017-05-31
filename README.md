@@ -16,6 +16,8 @@ Limited memory of witnessed data, oldest are forgotten. Library is thread safe.
 
 # Example
 
+## Deterministic
+
 ```
 package main
 
@@ -26,28 +28,33 @@ import (
 
 func main() {
 
-	// always remembers last three entries
-	d := dejavu.NewDeterministic(3)
+	// always remembers last 1024 entries
+	d := dejavu.NewDeterministic(1024)
 
-	// add entries
-	fmt.Println(d.Witness([]byte("foo")))
-	fmt.Println(d.Witness([]byte("bar")))
-
-	// remembers entry
-	fmt.Println(d.Witness([]byte("bar")))
-
-	// remembers oldest entry before overwriting
-	fmt.Println(d.Witness([]byte("foo")))
-
-	// add entries
-	fmt.Println(d.Witness([]byte("bam")))
-	fmt.Println(d.Witness([]byte("baz")))
-
-	// forgot oldest
-	fmt.Println(d.Witness([]byte("bar")))
+	fmt.Println(d.Witness([]byte("foo"))) // entry added
+	fmt.Println(d.Witness([]byte("foo"))) // remembers entry
 }
 ```
 
+## Probabilistic
+
+```
+package main
+
+import (
+	"fmt"
+	"github.com/f483/dejavu"
+)
+
+func main() {
+
+	// probably remembers last 65536 with 0.000001 chance of false positive
+	p := dejavu.NewProbabilistic(65536, 0.000001)
+
+	fmt.Println(p.Witness([]byte("bar"))) // entry added
+	fmt.Println(p.Witness([]byte("bar"))) // probably remembers entry
+}
+```
 
 # Performance
 

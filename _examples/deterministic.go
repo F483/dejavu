@@ -9,23 +9,9 @@ import (
 
 func main() {
 
-	// remembers last three entries
-	d := dejavu.NewDejaVuDeterministic(3)
+	// always remembers last 1024 entries
+	d := dejavu.NewDeterministic(1024)
 
-	// add entries
-	fmt.Println(d.Witness([]byte("foo")))
-	fmt.Println(d.Witness([]byte("bar")))
-
-	// remembers entry
-	fmt.Println(d.Witness([]byte("bar")))
-
-	// remembers oldest entry before overwriting
-	fmt.Println(d.Witness([]byte("foo")))
-
-	// add entries
-	fmt.Println(d.Witness([]byte("bam")))
-	fmt.Println(d.Witness([]byte("baz")))
-
-	// forgot oldest
-	fmt.Println(d.Witness([]byte("bar")))
+	fmt.Println(d.Witness([]byte("foo"))) // entry added
+	fmt.Println(d.Witness([]byte("foo"))) // remembers entry
 }
