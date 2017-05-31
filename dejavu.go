@@ -2,6 +2,7 @@ package dejavu
 
 import (
 	"crypto/sha256"
+	"github.com/AndreasBriese/bbloom"
 	"sync"
 )
 
@@ -14,11 +15,11 @@ type DejaVu interface {
 	// WitnessDigest is equivalent to the Winness method but bypasses hashing
 	// the data. Use this to improve performance if you already happen
 	// to have the sha256 digest.
-	WitnessDigest(dataDigest [sha256.Size]byte) bool
+	WitnessDigest(digest [sha256.Size]byte) bool
 }
 
 //////////////////////////////////
-// Deterministic implementation //
+// DETERMINISTIC IMPLEMENTATION //
 //////////////////////////////////
 
 type deterministic struct {
@@ -29,9 +30,9 @@ type deterministic struct {
 	mutex  *sync.Mutex
 }
 
-// NewDejaVuDeterministic creates a deterministic DejaVu memory. Will remember
+// NewDeterministic creates a deterministic DejaVu memory. Will remember
 // most recent entries within given entrie limit and forget older entries.
-func NewDejaVuDeterministic(entrieLimit uint) DejaVu {
+func NewDeterministic(entrieLimit uint) DejaVu {
 	return &deterministic{
 		buffer: make([][sha256.Size]byte, entrieLimit),
 		size:   int(entrieLimit),
@@ -41,9 +42,10 @@ func NewDejaVuDeterministic(entrieLimit uint) DejaVu {
 	}
 }
 
-func (d *deterministic) WitnessDigest(dataDigest [sha256.Size]byte) bool {
+func (d *deterministic) WitnessDigest(digest [sha256.Size]byte) bool {
 	d.mutex.Lock()
-	_, familiar := d.lookup[dataDigest] // check if previously seen
+
+	_, familiar := d.lookup[digest] // check if previously seen
 
 	// rm oldest lookup key if no newer entry
 	maxed := len(d.buffer) == d.size // overwriting oldest entry
@@ -52,8 +54,8 @@ func (d *deterministic) WitnessDigest(dataDigest [sha256.Size]byte) bool {
 	}
 
 	// add entry and update index/lookup
-	d.buffer[d.index] = dataDigest
-	d.lookup[dataDigest] = d.index
+	d.buffer[d.index] = digest
+	d.lookup[digest] = d.index
 	d.index = (d.index + 1) % d.size
 
 	d.mutex.Unlock()
@@ -62,4 +64,59 @@ func (d *deterministic) WitnessDigest(dataDigest [sha256.Size]byte) bool {
 
 func (d *deterministic) Witness(data []byte) bool {
 	return d.WitnessDigest(sha256.Sum256(data))
+}
+
+//////////////////////////////////
+// PROBABILISTIC IMPLEMENTATION //
+//////////////////////////////////
+
+type probabilistic struct {
+	filters            [2]*bbloom.Bloom // alternatingly replaced every size entries
+	entrieLimit        uint             // filter size
+	falsePositiveRatio float64          //
+	index              int              // current filter index
+	entries            uint             // entries added to currently indexed filter
+	mutex              *sync.Mutex
+}
+
+// NewProbabilistic creates a probabilistic DejaVu memory. Probably remembers
+// most recent entries within given entrie limit and false positive ratio.
+func NewProbabilistic(entrieLimit uint, falsePositiveRatio float64) DejaVu {
+	a := bbloom.New(float64(entrieLimit), falsePositiveRatio)
+	b := bbloom.New(float64(entrieLimit), falsePositiveRatio)
+	return &probabilistic{
+		filters:            [2]*bbloom.Bloom{&a, &b},
+		entrieLimit:        entrieLimit,
+		falsePositiveRatio: falsePositiveRatio,
+		index:              0,
+		entries:            0,
+		mutex:              new(sync.Mutex),
+	}
+}
+
+func (p *probabilistic) WitnessDigest(digest [sha256.Size]byte) bool {
+	p.mutex.Lock()
+
+	// check if exists
+	d := digest[:]
+	familiar := p.filters[0].Has(d) || p.filters[1].Has(d)
+
+	// always add in case its from the old buffer
+	p.filters[p.index].AddIfNotHas(d)
+	p.entries++
+
+	// switch buffers if current is maxed
+	if p.entries >= p.entrieLimit {
+		p.entries = 0
+		p.index = (p.index + 1) % 2
+		f := bbloom.New(float64(p.entrieLimit), p.falsePositiveRatio)
+		p.filters[p.index] = &f // replace old filter
+	}
+
+	p.mutex.Unlock()
+	return familiar
+}
+
+func (p *probabilistic) Witness(data []byte) bool {
+	return p.WitnessDigest(sha256.Sum256(data))
 }

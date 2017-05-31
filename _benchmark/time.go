@@ -13,7 +13,7 @@ import (
 func runBenchmark(size int) float64 {
 
 	begin := time.Now().UnixNano()
-	d := dejavu.NewDejaVu(size)
+	d := dejavu.NewDeterministic(size)
 	for i := 0; i < 1000000; i++ {
 		if i%10 == 0 {
 			s := strconv.FormatInt(int64(i-10), 10)

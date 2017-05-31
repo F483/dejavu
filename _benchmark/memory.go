@@ -13,7 +13,7 @@ import (
 func runBenchmark(size int) float64 {
 
 	// max out
-	d := dejavu.NewDejaVu(size)
+	d := dejavu.NewDeterministic(size)
 	for i := 0; i < size; i++ {
 		s := strconv.FormatInt(int64(i), 10)
 		d.Witness([]byte(s))
