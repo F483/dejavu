@@ -10,11 +10,11 @@ import (
 	"strconv"
 )
 
-func runBenchmark(size int) float64 {
+func runBenchmark(size uint) float64 {
 
 	// max out
-	d := dejavu.NewDeterministic(size)
-	for i := 0; i < size; i++ {
+	d := dejavu.NewProbabilistic(size, 0.000001)
+	for i := 0; uint(i) < size; i++ {
 		s := strconv.FormatInt(int64(i), 10)
 		d.Witness([]byte(s))
 	}

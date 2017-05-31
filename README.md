@@ -12,6 +12,7 @@
 Quickly detect already witnessed data.
 
 Limited memory of witnessed data, oldest are forgotten. Library is thread safe.
+Offers deterministic and probabilistic (less memory consuming) implementation.
 
 
 # Example
@@ -58,10 +59,22 @@ func main() {
 
 # Performance
 
+## Deterministic
+
 ### Constant witness time: O(1)
 
-![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/time.png)
+![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/deterministic-time.png)
 
 ### Linear memory usage: O(n)
 
-![Benchmark Memory](https://github.com/f483/dejavu/raw/master/_benchmark/memory.png)
+![Benchmark Memory](https://github.com/f483/dejavu/raw/master/_benchmark/deterministic-memory.png)
+
+## Deterministic
+
+### Constant witness time: O(1)
+
+![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/probabilistic-time.png)
+
+### Linear memory usage: O(n)
+
+![Benchmark Memory](https://github.com/f483/dejavu/raw/master/_benchmark/probabilistic-memory.png)

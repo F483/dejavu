@@ -6,35 +6,31 @@ import (
 	"github.com/f483/dejavu"
 	"github.com/wcharczuk/go-chart"
 	"net/http"
+	"runtime"
 	"strconv"
-	"time"
 )
 
-func runBenchmark(size int) float64 {
+func runBenchmark(size uint) float64 {
 
-	begin := time.Now().UnixNano()
+	// max out
 	d := dejavu.NewDeterministic(size)
-	for i := 0; i < 1000000; i++ {
-		if i%10 == 0 {
-			s := strconv.FormatInt(int64(i-10), 10)
-			d.Witness([]byte(s))
-		} else {
-			s := strconv.FormatInt(int64(i), 10)
-			d.Witness([]byte(s))
-		}
+	for i := 0; uint(i) < size; i++ {
+		s := strconv.FormatInt(int64(i), 10)
+		d.Witness([]byte(s))
 	}
-	end := time.Now().UnixNano()
 
-	return float64(end-begin) / 1000000000.0
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	return float64(m.Alloc) / float64(1024*1024)
 }
 
 func runBenchmarks() ([]float64, []float64) {
-	return []float64{4096, 8192, 16384, 32768, 65536}, []float64{
-		runBenchmark(4096),
-		runBenchmark(8192),
-		runBenchmark(16384),
-		runBenchmark(32768),
+	return []float64{65536, 131072, 262144, 524288, 1048576}, []float64{
 		runBenchmark(65536),
+		runBenchmark(131072),
+		runBenchmark(262144),
+		runBenchmark(524288),
+		runBenchmark(1048576),
 	}
 }
 
@@ -44,12 +40,12 @@ func drawChart(res http.ResponseWriter, req *http.Request) {
 
 	graph := chart.Chart{
 		XAxis: chart.XAxis{
-			Name:      "max entrie size",
+			Name:      "entries stored",
 			NameStyle: chart.StyleShow(),
 			Style:     chart.StyleShow(),
 		},
 		YAxis: chart.YAxis{
-			Name:      "seconds to witness 1000000 entries",
+			Name:      "memory usage in mb",
 			NameStyle: chart.StyleShow(),
 			Style:     chart.StyleShow(),
 		},
