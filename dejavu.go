@@ -5,13 +5,15 @@ import (
 	"sync"
 )
 
+// DejaVu witnesses data and recall if seen before.
 type DejaVu interface {
 
-	// Add data entry to memory. Returns true if previously seen.
+	// Witness data and add to memory. Returns true if previously seen.
 	Witness(data []byte) bool
 
-	// Same as Witness method but bypasses hashing the data. Use this to
-	// to improve performance if you already happen to have the sha256 digest.
+	// WitnessDigest is equivelant to the Winness method but bypasses hashing
+	// the data. Use this to improve performance if you already happen
+	// to have the sha256 digest.
 	WitnessDigest(dataDigest [sha256.Size]byte) bool
 }
 
@@ -27,7 +29,8 @@ type deterministic struct {
 	mutex  *sync.Mutex
 }
 
-// Creates a new DejaVu memory with max entries limited to given entrie limit.
+// NewDejaVuDeterministic creates a deterministic DejaVu memory. Will remember
+// most recent entries within given entrie limit and forget older entries.
 func NewDejaVuDeterministic(entrieLimit uint) DejaVu {
 	return &deterministic{
 		buffer: make([][sha256.Size]byte, entrieLimit),
