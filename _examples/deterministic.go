@@ -10,7 +10,7 @@ import (
 func main() {
 
 	// remembers last three entries
-	d := dejavu.NewDejaVu(3)
+	d := dejavu.NewDejaVuDeterministic(3)
 
 	// add entries
 	fmt.Println(d.Witness([]byte("foo")))

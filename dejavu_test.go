@@ -4,7 +4,7 @@ import "testing"
 
 func TestDejaVu(t *testing.T) {
 
-	d := NewDejaVu(3)
+	d := NewDejaVuDeterministic(3)
 
 	// add entries
 	if d.Witness([]byte("foo")) {

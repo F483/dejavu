@@ -11,9 +11,7 @@
 
 Quickly detect already witnessed data.
 
-Memory of witnessed data entries is limited and oldest are forgotten.
-It may give false negatives, but not false positives. Library is thread
-safe.
+Limited memory of witnessed data, oldest are forgotten. Library is thread safe.
 
 
 # Example
@@ -28,8 +26,8 @@ import (
 
 func main() {
 
-	// remembers last three entries
-	d := dejavu.NewDejaVu(3)
+	// always remembers last three entries
+	d := dejavu.NewDejaVuDeterministic(3)
 
 	// add entries
 	fmt.Println(d.Witness([]byte("foo")))

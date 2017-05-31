@@ -5,32 +5,40 @@ import (
 	"sync"
 )
 
-type digest [sha256.Size]byte
+type DejaVu interface {
 
-type DejaVu struct {
-	buffer []digest       // ring buffer
-	size   int            // ring buffer size
-	index  int            // current ring buffer index
-	lookup map[digest]int // digest -> newest index (for performance)
+	// Add data entry to memory. Returns true if previously seen.
+	Witness(data []byte) bool
+
+	// Same as Witness method but bypasses hashing the data. Use this to
+	// to improve performance if you already happen to have the sha256 digest.
+	WitnessDigest(dataDigest [sha256.Size]byte) bool
+}
+
+//////////////////////////////////
+// Deterministic implementation //
+//////////////////////////////////
+
+type deterministic struct {
+	buffer [][sha256.Size]byte       // ring buffer
+	size   int                       // ring buffer size
+	index  int                       // current ring buffer index
+	lookup map[[sha256.Size]byte]int // digest -> newest index (optimization)
 	mutex  *sync.Mutex
 }
 
-// Creates a new DejaVu memory with max entries limited to given size.
-func NewDejaVu(size int) *DejaVu {
-	// FIXME handle size of < 1 given
-	return &DejaVu{
-		buffer: make([]digest, size),
-		size:   size,
+// Creates a new DejaVu memory with max entries limited to given entrie limit.
+func NewDejaVuDeterministic(entrieLimit uint) DejaVu {
+	return &deterministic{
+		buffer: make([][sha256.Size]byte, entrieLimit),
+		size:   int(entrieLimit),
 		index:  0,
-		lookup: make(map[digest]int),
+		lookup: make(map[[sha256.Size]byte]int),
 		mutex:  new(sync.Mutex),
 	}
 }
 
-// Same as Witness method but bypasses hashing the data. Use this to
-// to improve performance if you already happen to have the sha256 digest
-// of the data entry.
-func (d *DejaVu) WitnessDigest(dataDigest [sha256.Size]byte) bool {
+func (d *deterministic) WitnessDigest(dataDigest [sha256.Size]byte) bool {
 	d.mutex.Lock()
 	_, familiar := d.lookup[dataDigest] // check if previously seen
 
@@ -49,8 +57,6 @@ func (d *DejaVu) WitnessDigest(dataDigest [sha256.Size]byte) bool {
 	return familiar
 }
 
-// Add data entry to memory. Returns true if previously seen, may give
-// false negatives but not false positives.
-func (d *DejaVu) Witness(data []byte) bool {
+func (d *deterministic) Witness(data []byte) bool {
 	return d.WitnessDigest(sha256.Sum256(data))
 }
