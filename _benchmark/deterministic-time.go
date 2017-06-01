@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func runBenchmark(size uint) float64 {
+func runBenchmark(size uint32) float64 {
 
 	begin := time.Now().UnixNano()
 	d := dejavu.NewDeterministic(size)

@@ -32,7 +32,7 @@ type deterministic struct {
 
 // NewDeterministic creates a deterministic DejaVu memory. Will remember
 // most recent entries within given entrie limit and forget older entries.
-func NewDeterministic(entrieLimit uint) DejaVu {
+func NewDeterministic(entrieLimit uint32) DejaVu {
 	return &deterministic{
 		buffer: make([][sha256.Size]byte, entrieLimit),
 		size:   int(entrieLimit),
@@ -72,17 +72,17 @@ func (d *deterministic) Witness(data []byte) bool {
 
 type probabilistic struct {
 	filters            [2]*bbloom.Bloom // alternatingly replaced when maxed
-	entrieLimit        uint             // filter size
+	entrieLimit        uint32           // filter size
 	falsePositiveRatio float64          // remember for buffer switch
 	index              int              // current filter index
-	entries            uint             // entries in currently indexed filter
+	entries            uint32           // entries in currently indexed filter
 	mutex              *sync.Mutex
 }
 
 // NewProbabilistic creates a probabilistic DejaVu memory. Probably remembers
 // most recent entries within given entrie limit and false positive ratio.
 // False positive ratio should be between 0.0 and 1.0.
-func NewProbabilistic(entrieLimit uint, falsePositiveRatio float64) DejaVu {
+func NewProbabilistic(entrieLimit uint32, falsePositiveRatio float64) DejaVu {
 	a := bbloom.New(float64(entrieLimit), falsePositiveRatio)
 	b := bbloom.New(float64(entrieLimit), falsePositiveRatio)
 	return &probabilistic{
