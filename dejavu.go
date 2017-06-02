@@ -1,3 +1,10 @@
+/*
+Déjà vu: Quickly detect already witnessed data.
+
+Limited memory of witnessed data, oldest are forgotten. Library is thread safe.
+Offers deterministic and probabilistic (over an order of magnatude less memory
+consuming) implementation.
+*/
 package dejavu
 
 import (
