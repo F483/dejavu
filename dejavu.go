@@ -2,7 +2,7 @@ package dejavu
 
 import (
 	"crypto/sha256"
-	"github.com/AndreasBriese/bbloom"
+	"github.com/willf/bloom"
 	"sync"
 )
 
@@ -71,11 +71,11 @@ func (d *deterministic) Witness(data []byte) bool {
 //////////////////////////////////
 
 type probabilistic struct {
-	filters            [2]*bbloom.Bloom // alternatingly replaced when maxed
-	entrieLimit        uint32           // filter size
-	falsePositiveRatio float64          // remember for buffer switch
-	index              int              // current filter index
-	entries            uint32           // entries in currently indexed filter
+	filters            [2]*bloom.BloomFilter // alternatingly replaced when maxed
+	entrieLimit        uint32                // filter size
+	falsePositiveRatio float64               // remember for buffer switch
+	index              int                   // current filter index
+	entries            uint32                // entries in currently indexed filter
 	mutex              *sync.Mutex
 }
 
@@ -83,10 +83,10 @@ type probabilistic struct {
 // most recent entries within given entrie limit and false positive ratio.
 // False positive ratio should be between 0.0 and 1.0.
 func NewProbabilistic(entrieLimit uint32, falsePositiveRatio float64) DejaVu {
-	a := bbloom.New(float64(entrieLimit), falsePositiveRatio)
-	b := bbloom.New(float64(entrieLimit), falsePositiveRatio)
+	a := bloom.NewWithEstimates(uint(entrieLimit), falsePositiveRatio)
+	b := bloom.NewWithEstimates(uint(entrieLimit), falsePositiveRatio)
 	return &probabilistic{
-		filters:            [2]*bbloom.Bloom{&a, &b},
+		filters:            [2]*bloom.BloomFilter{a, b},
 		entrieLimit:        entrieLimit,
 		falsePositiveRatio: falsePositiveRatio,
 		index:              0,
@@ -100,18 +100,18 @@ func (p *probabilistic) WitnessDigest(digest [sha256.Size]byte) bool {
 
 	// check if exists
 	d := digest[:]
-	familiar := p.filters[0].Has(d) || p.filters[1].Has(d)
+	familiar := p.filters[0].Test(d) || p.filters[1].Test(d)
 
 	// always add in case its from the old buffer
-	p.filters[p.index].AddIfNotHas(d)
+	p.filters[p.index].Add(d)
 	p.entries++
 
 	// switch buffers if current is maxed
 	if p.entries >= p.entrieLimit {
 		p.entries = 0
 		p.index = (p.index + 1) % 2
-		f := bbloom.New(float64(p.entrieLimit), p.falsePositiveRatio)
-		p.filters[p.index] = &f // replace old filter
+		f := bloom.NewWithEstimates(uint(p.entrieLimit), p.falsePositiveRatio)
+		p.filters[p.index] = f // replace old filter
 	}
 
 	p.mutex.Unlock()
