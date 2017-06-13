@@ -13,6 +13,8 @@ import (
 	"sync"
 )
 
+// FIXME use io.Reader and io.Writer where possible
+
 // DejaVu witnesses data and recalls if seen before.
 type DejaVu interface {
 
@@ -77,12 +79,15 @@ func (d *deterministic) Witness(data []byte) bool {
 // PROBABILISTIC IMPLEMENTATION //
 //////////////////////////////////
 
+const liveFilterCnt = 8
+const totalFilterCnt = liveFilterCnt + 1
+
 type probabilistic struct {
-	filters            [2]*bloom.BloomFilter // alternatingly replaced when maxed
-	entrieLimit        uint32                // filter size
-	falsePositiveRatio float64               // remember for buffer switch
-	index              int                   // current filter index
-	entries            uint32                // entries in currently indexed filter
+	filters            []*bloom.BloomFilter
+	entrieLimit        uint32  // filter size
+	falsePositiveRatio float64 // remember for buffer switch
+	index              int     // current filter index
+	entries            uint32  // entries in currently indexed filter
 	mutex              *sync.Mutex
 }
 
@@ -90,10 +95,13 @@ type probabilistic struct {
 // most recent entries within given entrie limit and false positive ratio.
 // False positive ratio should be between 0.0 and 1.0.
 func NewProbabilistic(entrieLimit uint32, falsePositiveRatio float64) DejaVu {
-	a := bloom.NewWithEstimates(uint(entrieLimit), falsePositiveRatio)
-	b := bloom.NewWithEstimates(uint(entrieLimit), falsePositiveRatio)
+	filters := make([]*bloom.BloomFilter, totalFilterCnt, totalFilterCnt)
+	for i := 0; i < totalFilterCnt; i++ {
+		fl := uint(entrieLimit / liveFilterCnt)
+		filters[i] = bloom.NewWithEstimates(fl, falsePositiveRatio)
+	}
 	return &probabilistic{
-		filters:            [2]*bloom.BloomFilter{a, b},
+		filters:            filters,
 		entrieLimit:        entrieLimit,
 		falsePositiveRatio: falsePositiveRatio,
 		index:              0,
@@ -107,17 +115,21 @@ func (p *probabilistic) WitnessDigest(digest [sha256.Size]byte) bool {
 
 	// check if exists
 	d := digest[:]
-	familiar := p.filters[0].Test(d) || p.filters[1].Test(d)
+	familiar := false
+	for _, f := range p.filters {
+		familiar = familiar || f.Test(d)
+	}
 
 	// always add in case its from the old buffer
 	p.filters[p.index].Add(d)
 	p.entries++
 
 	// switch buffers if current is maxed
-	if p.entries >= p.entrieLimit {
+	if p.entries >= (p.entrieLimit / liveFilterCnt) {
 		p.entries = 0
-		p.index = (p.index + 1) % 2
-		f := bloom.NewWithEstimates(uint(p.entrieLimit), p.falsePositiveRatio)
+		p.index = (p.index + 1) % len(p.filters)
+		fl := uint(p.entrieLimit / liveFilterCnt)
+		f := bloom.NewWithEstimates(fl, p.falsePositiveRatio)
 		p.filters[p.index] = f // replace old filter
 	}
 
