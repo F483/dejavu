@@ -1,9 +1,9 @@
 /*
 Package dejavu offers quick detection of already witnessed data.
 
-Limited memory of witnessed data, oldest are forgotten. Library is thread safe.
-Offers deterministic and probabilistic (over an order of magnatude less memory
-consuming) implementation.
+Limited memory of witnessed data, oldest are forgotten. Library is
+thread safe. Offers deterministic and probabilistic (over an order of
+magnatude less memory consuming) implementation.
 */
 package dejavu
 
@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-// FIXME use io.Reader and io.Writer where possible
+// TODO processing functions using io.Reader and io.Writer
 
 // DejaVu witnesses data and recalls if seen before.
 type DejaVu interface {
@@ -91,9 +91,9 @@ type probabilistic struct {
 	mutex              *sync.Mutex
 }
 
-// NewProbabilistic creates a probabilistic DejaVu memory. Probably remembers
-// most recent entries within given entrie limit and false positive ratio.
-// False positive ratio should be between 0.0 and 1.0.
+// NewProbabilistic creates a probabilistic DejaVu memory. Probably
+// remembers most recent entries within given entrie limit and false
+// positive ratio. False positive ratio should be between 0.0 and 1.0.
 func NewProbabilistic(entrieLimit uint32, falsePositiveRatio float64) DejaVu {
 	filters := make([]*bloom.BloomFilter, totalFilterCnt, totalFilterCnt)
 	for i := 0; i < totalFilterCnt; i++ {
@@ -117,7 +117,10 @@ func (p *probabilistic) WitnessDigest(digest [sha256.Size]byte) bool {
 	d := digest[:]
 	familiar := false
 	for _, f := range p.filters {
-		familiar = familiar || f.Test(d)
+		if f.Test(d) {
+			familiar = true
+			break
+		}
 	}
 
 	// always add in case its from the old buffer
