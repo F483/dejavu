@@ -10,34 +10,22 @@
 
 # Déjà vu
 
-Quickly detect already witnessed data.
+Quickly detect already witnessed data, ideal for deduplication.
 
 Limited memory of witnessed data, oldest are forgotten. Library is thread safe.
 Offers deterministic and probabilistic (over an order of magnatude less memory
-consuming) implementation.
+consuming) implementation. The probabilistic implementation uses bloom filters,
+meaning false positives are possible but not false negatives.
 
+# Command line usage
 
-# Example
+The command line interface/behaviour is similar to that of `cat` and is 
+intended to be used as a drop in replacement for deduplication. It 
+offers additional arguments to control removal/highlighing of duplicates.
 
-## Deterministic
+TODO examples
 
-```
-package main
-
-import (
-	"fmt"
-	"github.com/f483/dejavu"
-)
-
-func main() {
-
-	// always remembers last 1024 entries
-	d := dejavu.NewDeterministic(1024)
-
-	fmt.Println(d.Witness([]byte("foo"))) // entry added
-	fmt.Println(d.Witness([]byte("foo"))) // remembers entry
-}
-```
+# Library usage (golang)
 
 ## Probabilistic
 
@@ -59,13 +47,29 @@ func main() {
 }
 ```
 
+## Deterministic
+
+```
+package main
+
+import (
+	"fmt"
+	"github.com/f483/dejavu"
+)
+
+func main() {
+
+	// always remembers last 1024 entries
+	d := dejavu.NewDeterministic(1024)
+
+	fmt.Println(d.Witness([]byte("foo"))) // entry added
+	fmt.Println(d.Witness([]byte("foo"))) // remembers entry
+}
+```
+
 # Performance
 
 ## Linear memory usage: O(n)
-
-### Deterministic
-
-![Benchmark Memory](https://github.com/f483/dejavu/raw/master/_benchmark/deterministic-memory.png)
 
 ### Probabilistic
 
@@ -73,12 +77,12 @@ func main() {
 
 ![Benchmark Memory](https://github.com/f483/dejavu/raw/master/_benchmark/probabilistic-memory.png)
 
-
-## Constant witness time: O(1)
-
 ### Deterministic
 
-![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/deterministic-time.png)
+![Benchmark Memory](https://github.com/f483/dejavu/raw/master/_benchmark/deterministic-memory.png)
+
+
+## Constant witness time: O(1)
 
 ### Probabilistic
 
@@ -86,3 +90,6 @@ func main() {
 
 ![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/probabilistic-time.png)
 
+### Deterministic
+
+![Benchmark Time](https://github.com/f483/dejavu/raw/master/_benchmark/deterministic-time.png)

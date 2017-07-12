@@ -1,6 +1,9 @@
 package dejavu
 
-import "testing"
+import (
+	"crypto/rand"
+	"testing"
+)
 
 func TestDeterministic(t *testing.T) {
 
@@ -63,5 +66,16 @@ func TestProbabilistic(t *testing.T) {
 	// forgot oldest
 	if d.Witness([]byte("bar")) {
 		t.Errorf("Incorrect déjà vu: 'bar'!")
+	}
+}
+
+func TestProbabilisticLoad(t *testing.T) {
+	d := NewProbabilistic(65536, 0.00000001)
+	for i := 0; i < 65536; i++ {
+		data := make([]byte, 20, 20)
+		rand.Read(data)
+		if d.Witness(data) {
+			t.Errorf("Unexpected dejavu: %#X", data)
+		}
 	}
 }

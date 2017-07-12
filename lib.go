@@ -8,8 +8,10 @@ magnatude less memory consuming) implementation.
 package dejavu
 
 import (
+	"bufio"
 	"crypto/sha256"
 	"github.com/willf/bloom"
+	"io"
 	"sync"
 )
 
@@ -21,10 +23,29 @@ type DejaVu interface {
 	// Witness data and add to memory. Returns true if previously seen.
 	Witness(data []byte) bool
 
-	// WitnessDigest is equivalent to the Winness method but bypasses hashing
-	// the data. Use this to improve performance if you already happen
-	// to have the sha256 digest.
+	// WitnessDigest is equivalent to the Winness method but bypasses
+	// hashing the data. Use this to improve performance if you already
+	// happen to have the sha256 digest.
 	WitnessDigest(digest [sha256.Size]byte) bool
+}
+
+func Process(
+	d DejaVu,
+	repeated bool, // output repeated lines instead of filtering duplicates
+	output io.Writer,
+	inputs ...io.Reader,
+) {
+	// TODO add additional `cat` options
+	for _, input := range inputs {
+		scanner := bufio.NewScanner(input)
+		for scanner.Scan() {
+			line := scanner.Text()
+			familiar := d.Witness([]byte(line))
+			if (repeated && familiar) || (!repeated && !familiar) {
+				output.Write([]byte(line))
+			}
+		}
+	}
 }
 
 //////////////////////////////////
