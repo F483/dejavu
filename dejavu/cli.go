@@ -101,7 +101,7 @@ func main() {
 
 	// only print version
 	if o.version {
-		fmt.Println("TODO version from constant")
+		fmt.Println(dejavu.Version)
 		return
 	}
 
