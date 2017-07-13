@@ -13,21 +13,59 @@
 Quickly detect already witnessed data, ideal for deduplication.
 
 Limited memory of witnessed data, oldest are forgotten. Library is thread safe.
-Offers deterministic and probabilistic (over an order of magnatude less memory
+Offers deterministic and probabilistic (over an order of magnitude less memory
 consuming) implementation. The probabilistic implementation uses bloom filters,
 meaning false positives are possible but not false negatives.
 
 # Command line usage
 
-The command line interface/behaviour is similar to that of `cat` and is 
-intended to be used as a drop in replacement for deduplication. It 
-offers additional arguments to control removal/highlighing of duplicates.
+```
+$ dejavu -h
+Usage: dejavu [OPTION]... [FILE]...
 
-TODO examples
+Concatenate FILE(s) and filter or output duplicate lines.
+
+With no FILE, or when FILE is -, read standard input.
+
+Options:
+  -D	use deterministic mode instead of probabilistic
+	WARNING requires order of magnitude more memory
+  -d	output only duplicates instead of filtering
+  -e	output estimated memory usage for given options and exit
+  -f float
+    	chance of false positive, between 0.0 and 1.0
+	only for probabilistic mode (default 1e-06)
+  -l uint
+    	limit after which entries are forgotton (default 1000000)
+  -o string
+    	output file, defaults to stdout
+  -v	output version information and exit
+
+Examples:
+  dejavu
+	default probabilistic deduplication from stdin to std out
+  dejavu -o s f - g
+	deduplicat f, then stdin, then g, to output s
+  dejavu -em -l 10000000 -fp 0.000000001
+	show estimated memory usage for given options
+  dejavu -d -D -l 65536
+	output duplicates and avoid false positives with deterministic mode
+	lower entry limit to avoid excessive memory usage
+
+Implementation:
+  Efficient probabilistic and deterministic duplicate detection with O(1) 
+  detection time and O(n) memory usage in relation to entry limit. Default
+  probabilistic implementation uses bloom filters, meaning false positives are
+  possible but not false negatives.
+
+Author: Fabian Barkhau <f483@protonmail.com>
+Project: https://github.com/f483/dejavu
+License: MIT https://raw.githubusercontent.com/f483/dejavu/master/LICENSE
+```
 
 # Library usage (golang)
 
-## Probabilistic
+## Probabilistic example
 
 ```
 package main
@@ -47,7 +85,7 @@ func main() {
 }
 ```
 
-## Deterministic
+## Deterministic example
 
 ```
 package main

@@ -12,10 +12,9 @@ import (
 	"crypto/sha256"
 	"github.com/willf/bloom"
 	"io"
+	"os"
 	"sync"
 )
-
-// TODO processing functions using io.Reader and io.Writer
 
 // DejaVu witnesses data and recalls if seen before.
 type DejaVu interface {
@@ -29,20 +28,56 @@ type DejaVu interface {
 	WitnessDigest(digest [sha256.Size]byte) bool
 }
 
-func Process(
-	d DejaVu,
-	repeated bool, // output repeated lines instead of filtering duplicates
-	output io.Writer,
-	inputs ...io.Reader,
-) {
-	// TODO add additional `cat` options
-	for _, input := range inputs {
+func New(deterministic bool, limit uint32, fpRatio float64) DejaVu {
+	if deterministic {
+		return NewDeterministic(limit)
+	} else { // probabilistic
+		return NewProbabilistic(limit, fpRatio)
+	}
+}
+
+///////////////////////////////////
+// PROCESS TEXT (for dejavu bin) //
+///////////////////////////////////
+
+func getReaders(paths []string) []io.Reader {
+	readers := make([]io.Reader, len(paths))
+	for i, path := range paths {
+		if path == "-" { // read from stdin
+			readers[i] = os.Stdin
+		} else { // read from file path
+			file, err := os.Open(path)
+			panic(err) // TODO bettor error handling?
+			readers[i] = file
+		}
+	}
+	return readers
+}
+
+func getWriter(path string) io.Writer {
+	if path == "" {
+		return os.Stdout
+	} else {
+		file, err := os.Open(path)
+		panic(err) // TODO bettor error handling?
+		return file
+	}
+}
+
+func ProcessTextPaths(d DejaVu, duplicates bool, out string, ins ...string) {
+	writer := getWriter(out)
+	readers := getReaders(ins)
+	ProcessText(d, duplicates, writer, readers...)
+}
+
+func ProcessText(d DejaVu, duplicates bool, out io.Writer, ins ...io.Reader) {
+	for _, input := range ins {
 		scanner := bufio.NewScanner(input)
 		for scanner.Scan() {
-			line := scanner.Text()
-			familiar := d.Witness([]byte(line))
-			if (repeated && familiar) || (!repeated && !familiar) {
-				output.Write([]byte(line))
+			text := scanner.Text()
+			seen := d.Witness([]byte(text))
+			if (duplicates && seen) || (!duplicates && !seen) {
+				out.Write([]byte(text))
 			}
 		}
 	}
