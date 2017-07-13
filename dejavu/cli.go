@@ -112,6 +112,6 @@ func main() {
 	}
 
 	// process data
-	d := dejavu.New(o.deterministic, uint32(o.limit), o.fpRatio)
-	dejavu.ProcessTextPaths(d, o.duplicates, o.output, paths...)
+	d := dejavu.New(!o.deterministic, uint32(o.limit), o.fpRatio)
+	dejavu.ProcessPaths(d, !o.duplicates, o.output, paths...)
 }

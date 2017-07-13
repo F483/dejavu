@@ -28,12 +28,13 @@ type DejaVu interface {
 	WitnessDigest(digest [sha256.Size]byte) bool
 }
 
-func New(deterministic bool, limit uint32, fpRatio float64) DejaVu {
-	if deterministic {
-		return NewDeterministic(limit)
-	} else { // probabilistic
+// New creates a probabilistic or deterministic DejaVu memory with given
+// entrie limit and false positive ratio (only used for probabilistic).
+func New(probabilistic bool, limit uint32, fpRatio float64) DejaVu {
+	if probabilistic {
 		return NewProbabilistic(limit, fpRatio)
 	}
+	return NewDeterministic(limit)
 }
 
 ///////////////////////////////////
@@ -47,7 +48,9 @@ func getReaders(paths []string) []io.Reader {
 			readers[i] = os.Stdin
 		} else { // read from file path
 			file, err := os.Open(path)
-			panic(err) // TODO bettor error handling?
+			if err != nil {
+				panic(err) // TODO bettor error handling?
+			}
 			readers[i] = file
 		}
 	}
@@ -57,26 +60,31 @@ func getReaders(paths []string) []io.Reader {
 func getWriter(path string) io.Writer {
 	if path == "" {
 		return os.Stdout
-	} else {
-		file, err := os.Open(path)
-		panic(err) // TODO bettor error handling?
-		return file
 	}
+	file, err := os.Open(path)
+	if err != nil {
+		panic(err) // TODO bettor error handling?
+	}
+	return file
 }
 
-func ProcessTextPaths(d DejaVu, duplicates bool, out string, ins ...string) {
+// ProcessPaths is equivalent to Process, only that file paths are given.
+// If - in inputs to use stdin and empty out to use stdout.
+func ProcessPaths(d DejaVu, filter bool, out string, inputs ...string) {
 	writer := getWriter(out)
-	readers := getReaders(ins)
-	ProcessText(d, duplicates, writer, readers...)
+	readers := getReaders(inputs)
+	Process(d, filter, writer, readers...)
 }
 
-func ProcessText(d DejaVu, duplicates bool, out io.Writer, ins ...io.Reader) {
-	for _, input := range ins {
+// Process given inputs as text to output with dejavu instance. If filter
+// is true duplicates are filtered, otherwise only duplicates sent to output.
+func Process(d DejaVu, filter bool, out io.Writer, inputs ...io.Reader) {
+	for _, input := range inputs {
 		scanner := bufio.NewScanner(input)
 		for scanner.Scan() {
 			text := scanner.Text()
 			seen := d.Witness([]byte(text))
-			if (duplicates && seen) || (!duplicates && !seen) {
+			if (!filter && seen) || (filter && !seen) {
 				out.Write([]byte(text))
 			}
 		}
