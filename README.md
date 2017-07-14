@@ -17,6 +17,28 @@ Offers deterministic and probabilistic (over an order of magnitude less memory
 consuming) implementation. The probabilistic implementation uses bloom filters,
 meaning false positives are possible but not false negatives.
 
+
+# Installation
+
+## Download binary release
+
+Compiled binaries for many platforms are available and can be downloaded for
+the [latest release](https://github.com/F483/dejavu/releases/latest).
+
+Extract the binary for your platform and add it to your system path.
+
+## Compile from source
+
+Requires golang [environment/workspace](https://golang.org/doc/code.html).
+
+```
+# compile and install library
+go get github.com/f483/dejavu
+
+# compile and install binary
+go install github.com/f483/dejavu/dejavu
+```
+
 # Command line usage
 
 ```
