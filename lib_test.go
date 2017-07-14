@@ -100,12 +100,3 @@ func TestGetReadersStdin(t *testing.T) {
 		t.Errorf("Expected stdin reader!")
 	}
 }
-
-func TestGetReadersFailure(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("ProcessPaths did not panic as expected")
-		}
-	}()
-	getReaders([]string{"fileDoesNotExist"})
-}

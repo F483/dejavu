@@ -45,6 +45,13 @@ func New(probabilistic bool, limit uint32, fpRatio float64) DejaVu {
 // PROCESS TEXT (for dejavu bin) //
 ///////////////////////////////////
 
+func checkExpectedFailure(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+}
+
 func getReaders(paths []string) []io.Reader {
 	readers := make([]io.Reader, len(paths))
 	for i, path := range paths {
@@ -52,9 +59,7 @@ func getReaders(paths []string) []io.Reader {
 			readers[i] = os.Stdin
 		} else { // read from file path
 			file, err := os.Open(path)
-			if err != nil {
-				panic(err) // TODO bettor error handling?
-			}
+			checkExpectedFailure(err)
 			readers[i] = file
 		}
 	}
@@ -66,9 +71,7 @@ func getWriter(path string) io.Writer {
 		return os.Stdout
 	}
 	file, err := os.Create(path)
-	if err != nil {
-		panic(err) // TODO bettor error handling?
-	}
+	checkExpectedFailure(err)
 	return file
 }
 
