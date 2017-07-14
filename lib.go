@@ -18,7 +18,7 @@ import (
 )
 
 // Version information
-const Version string = "0.1.0"
+const Version string = "1.0.0"
 
 // DejaVu witnesses data and recalls if seen before.
 type DejaVu interface {
