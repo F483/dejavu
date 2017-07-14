@@ -2,12 +2,13 @@ package dejavu
 
 import (
 	"crypto/rand"
+	"os"
 	"testing"
 )
 
 func TestDeterministic(t *testing.T) {
 
-	d := NewDeterministic(3)
+	d := New(false, 3, 0.0)
 
 	// add entries
 	if d.Witness([]byte("foo")) {
@@ -43,7 +44,7 @@ func TestDeterministic(t *testing.T) {
 
 func TestProbabilistic(t *testing.T) {
 
-	d := NewProbabilistic(1024, 0.000001)
+	d := New(true, 1024, 0.000001)
 
 	// add entries
 	if d.Witness([]byte("foo")) {
@@ -77,5 +78,25 @@ func TestProbabilisticLoad(t *testing.T) {
 		if d.Witness(data) {
 			t.Errorf("Unexpected dejavu: %#X", data)
 		}
+	}
+}
+
+func TestProcess(t *testing.T) {
+	// TODO compare know test input files to expected output file
+	d := NewProbabilistic(65536, 0.00000001)
+	ProcessPaths(d, true, "/dev/null", "LICENSE", "README.md")
+}
+
+func TestGetWriterStdout(t *testing.T) {
+	w := getWriter("")
+	if w != os.Stdout {
+		t.Errorf("Expected stdout writer!")
+	}
+}
+
+func TestGetReadersStdin(t *testing.T) {
+	r := getReaders([]string{"-"})
+	if len(r) != 1 && r[0] != os.Stdin {
+		t.Errorf("Expected stdin reader!")
 	}
 }

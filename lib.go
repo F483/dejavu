@@ -10,6 +10,7 @@ package dejavu
 import (
 	"bufio"
 	"crypto/sha256"
+	"fmt"
 	"github.com/willf/bloom"
 	"io"
 	"os"
@@ -86,7 +87,7 @@ func Process(d DejaVu, filter bool, out io.Writer, inputs ...io.Reader) {
 	for _, input := range inputs {
 		scanner := bufio.NewScanner(input)
 		for scanner.Scan() {
-			text := scanner.Text()
+			text := fmt.Sprintf("%s\n", scanner.Text())
 			seen := d.Witness([]byte(text))
 			if (!filter && seen) || (filter && !seen) {
 				out.Write([]byte(text))
