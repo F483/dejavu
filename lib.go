@@ -16,7 +16,7 @@ import (
 	"sync"
 )
 
-// Version information string
+// Version information
 const Version string = "0.1.0"
 
 // DejaVu witnesses data and recalls if seen before.
@@ -79,8 +79,9 @@ func ProcessPaths(d DejaVu, filter bool, out string, inputs ...string) {
 	Process(d, filter, writer, readers...)
 }
 
-// Process given inputs as text to output with dejavu instance. If filter
-// is true duplicates are filtered, otherwise only duplicates sent to output.
+// Process given inputs as text to output with dejavu instance.
+// If filter is true duplicates are filtered, otherwise only
+// duplicates sent to output.
 func Process(d DejaVu, filter bool, out io.Writer, inputs ...io.Reader) {
 	for _, input := range inputs {
 		scanner := bufio.NewScanner(input)
@@ -102,16 +103,16 @@ type deterministic struct {
 	buffer [][sha256.Size]byte       // ring buffer
 	size   int                       // ring buffer size
 	index  int                       // current ring buffer index
-	lookup map[[sha256.Size]byte]int // digest -> newest index (optimization)
+	lookup map[[sha256.Size]byte]int // digest -> newest index
 	mutex  *sync.Mutex
 }
 
 // NewDeterministic creates a deterministic DejaVu memory. Will remember
 // most recent entries within given entrie limit and forget older entries.
-func NewDeterministic(entrieLimit uint32) DejaVu {
+func NewDeterministic(limit uint32) DejaVu {
 	return &deterministic{
-		buffer: make([][sha256.Size]byte, entrieLimit),
-		size:   int(entrieLimit),
+		buffer: make([][sha256.Size]byte, limit),
+		size:   int(limit),
 		index:  0,
 		lookup: make(map[[sha256.Size]byte]int),
 		mutex:  new(sync.Mutex),
@@ -151,7 +152,7 @@ const totalFilterCnt = liveFilterCnt + 1
 
 type probabilistic struct {
 	filters            []*bloom.BloomFilter
-	entrieLimit        uint32  // filter size
+	limit              uint32  // filter size
 	falsePositiveRatio float64 // remember for buffer switch
 	index              int     // current filter index
 	entries            uint32  // entries in currently indexed filter
@@ -161,15 +162,15 @@ type probabilistic struct {
 // NewProbabilistic creates a probabilistic DejaVu memory. Probably
 // remembers most recent entries within given entrie limit and false
 // positive ratio. False positive ratio should be between 0.0 and 1.0.
-func NewProbabilistic(entrieLimit uint32, falsePositiveRatio float64) DejaVu {
+func NewProbabilistic(limit uint32, falsePositiveRatio float64) DejaVu {
 	filters := make([]*bloom.BloomFilter, totalFilterCnt, totalFilterCnt)
 	for i := 0; i < totalFilterCnt; i++ {
-		fl := uint(entrieLimit / liveFilterCnt)
+		fl := uint(limit / liveFilterCnt)
 		filters[i] = bloom.NewWithEstimates(fl, falsePositiveRatio)
 	}
 	return &probabilistic{
 		filters:            filters,
-		entrieLimit:        entrieLimit,
+		limit:              limit,
 		falsePositiveRatio: falsePositiveRatio,
 		index:              0,
 		entries:            0,
@@ -195,10 +196,10 @@ func (p *probabilistic) WitnessDigest(digest [sha256.Size]byte) bool {
 	p.entries++
 
 	// switch buffers if current is maxed
-	if p.entries >= (p.entrieLimit / liveFilterCnt) {
+	if p.entries >= (p.limit / liveFilterCnt) {
 		p.entries = 0
 		p.index = (p.index + 1) % len(p.filters)
-		fl := uint(p.entrieLimit / liveFilterCnt)
+		fl := uint(p.limit / liveFilterCnt)
 		f := bloom.NewWithEstimates(fl, p.falsePositiveRatio)
 		p.filters[p.index] = f // replace old filter
 	}

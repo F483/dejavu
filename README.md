@@ -31,7 +31,6 @@ Options:
   -D	use deterministic mode instead of probabilistic
 	WARNING requires order of magnitude more memory
   -d	output only duplicates instead of filtering
-  -e	output estimated memory usage for given options and exit
   -f float
     	chance of false positive, between 0.0 and 1.0
 	only for probabilistic mode (default 1e-06)
@@ -43,11 +42,13 @@ Options:
 
 Examples:
   dejavu
-	default probabilistic deduplication from stdin to std out
+	default probabilistic deduplication from stdin to std out with
+	1mil entry limit and 1/1mil chance of false positive (~8M mem usage)
   dejavu -o s f - g
 	deduplicat f, then stdin, then g, to output s
-  dejavu -em -l 10000000 -fp 0.000000001
-	show estimated memory usage for given options
+  dejavu -l 10000000 -fp 0.000000001
+	probabilistic deduplication with 10mil entry limit
+	and 1/1bil chance of false positive (~70M mem usage)
   dejavu -d -D -l 65536
 	output duplicates and avoid false positives with deterministic mode
 	lower entry limit to avoid excessive memory usage
@@ -55,8 +56,8 @@ Examples:
 Implementation:
   Efficient probabilistic and deterministic duplicate detection with O(1) 
   detection time and O(n) memory usage in relation to entry limit. Default
-  probabilistic implementation uses bloom filters, meaning false positives are
-  possible but not false negatives.
+  probabilistic implementation uses bloom filters, meaning false
+  positives are possible but not false negatives.
 
 Author: Fabian Barkhau <f483@protonmail.com>
 Project: https://github.com/f483/dejavu
