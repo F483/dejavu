@@ -45,44 +45,37 @@ func New(probabilistic bool, limit uint32, fpRatio float64) DejaVu {
 // PROCESS TEXT (for dejavu bin) //
 ///////////////////////////////////
 
-func getReaders(paths []string) ([]io.Reader, error) {
-	readers := make([]io.Reader, len(paths))
-	for i, path := range paths {
+// ProcessPaths is equivalent to Process, only that file paths are given.
+// If - in inputs to use stdin and empty out to use stdout.
+func ProcessPaths(d DejaVu, filter bool, out string, inputs ...string) error {
+
+	// get output writer
+	var writer *os.File
+	if out == "" {
+		writer = os.Stdout
+	} else {
+		writer, err := os.Create(out)
+		if err != nil {
+			return err
+		}
+		defer writer.Close()
+	}
+
+	// get input readers
+	readers := make([]io.Reader, len(inputs))
+	for i, path := range inputs {
 		if path == "-" { // read from stdin
 			readers[i] = os.Stdin
 		} else { // read from file path
 			file, err := os.Open(path)
 			if err != nil {
-				return nil, err
+				return err
 			}
+			defer file.Close()
 			readers[i] = file
 		}
 	}
-	return readers, nil
-}
 
-func getWriter(path string) (io.Writer, error) {
-	if path == "" {
-		return os.Stdout, nil
-	}
-	file, err := os.Create(path)
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
-}
-
-// ProcessPaths is equivalent to Process, only that file paths are given.
-// If - in inputs to use stdin and empty out to use stdout.
-func ProcessPaths(d DejaVu, filter bool, out string, inputs ...string) error {
-	writer, err := getWriter(out)
-	if err != nil {
-		return err
-	}
-	readers, err := getReaders(inputs)
-	if err != nil {
-		return err
-	}
 	Process(d, filter, writer, readers...)
 	return nil
 }
