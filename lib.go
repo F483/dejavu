@@ -65,7 +65,7 @@ func getWriter(path string) io.Writer {
 	if path == "" {
 		return os.Stdout
 	}
-	file, err := os.Open(path)
+	file, err := os.Create(path)
 	if err != nil {
 		panic(err) // TODO bettor error handling?
 	}
