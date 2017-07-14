@@ -105,5 +105,9 @@ func main() {
 
 	// process data
 	d := dejavu.New(!o.deterministic, uint32(o.limit), o.fpRatio)
-	dejavu.ProcessPaths(d, !o.duplicates, o.output, paths...)
+	err := dejavu.ProcessPaths(d, !o.duplicates, o.output, paths...)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
 }

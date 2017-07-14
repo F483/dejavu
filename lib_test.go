@@ -88,14 +88,14 @@ func TestProcess(t *testing.T) {
 }
 
 func TestGetWriterStdout(t *testing.T) {
-	w := getWriter("")
+	w, _ := getWriter("")
 	if w != os.Stdout {
 		t.Errorf("Expected stdout writer!")
 	}
 }
 
 func TestGetReadersStdin(t *testing.T) {
-	r := getReaders([]string{"-"})
+	r, _ := getReaders([]string{"-"})
 	if len(r) != 1 && r[0] != os.Stdin {
 		t.Errorf("Expected stdin reader!")
 	}

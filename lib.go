@@ -45,42 +45,46 @@ func New(probabilistic bool, limit uint32, fpRatio float64) DejaVu {
 // PROCESS TEXT (for dejavu bin) //
 ///////////////////////////////////
 
-func checkExpectedFailure(err error) {
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
-	}
-}
-
-func getReaders(paths []string) []io.Reader {
+func getReaders(paths []string) ([]io.Reader, error) {
 	readers := make([]io.Reader, len(paths))
 	for i, path := range paths {
 		if path == "-" { // read from stdin
 			readers[i] = os.Stdin
 		} else { // read from file path
 			file, err := os.Open(path)
-			checkExpectedFailure(err)
+			if err != nil {
+				return nil, err
+			}
 			readers[i] = file
 		}
 	}
-	return readers
+	return readers, nil
 }
 
-func getWriter(path string) io.Writer {
+func getWriter(path string) (io.Writer, error) {
 	if path == "" {
-		return os.Stdout
+		return os.Stdout, nil
 	}
 	file, err := os.Create(path)
-	checkExpectedFailure(err)
-	return file
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
 }
 
 // ProcessPaths is equivalent to Process, only that file paths are given.
 // If - in inputs to use stdin and empty out to use stdout.
-func ProcessPaths(d DejaVu, filter bool, out string, inputs ...string) {
-	writer := getWriter(out)
-	readers := getReaders(inputs)
+func ProcessPaths(d DejaVu, filter bool, out string, inputs ...string) error {
+	writer, err := getWriter(out)
+	if err != nil {
+		return err
+	}
+	readers, err := getReaders(inputs)
+	if err != nil {
+		return err
+	}
 	Process(d, filter, writer, readers...)
+	return nil
 }
 
 // Process given inputs as text to output with dejavu instance.
