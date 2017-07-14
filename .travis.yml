@@ -7,5 +7,7 @@ go:
   - 1.8.x
 
 script:
+  - go get github.com/willf/bloom
+  - go get github.com/f483/dejavu
   - go test -v ./...
 
