@@ -51,10 +51,11 @@ func ProcessPaths(d DejaVu, filter bool, out string, inputs ...string) error {
 
 	// get output writer
 	var writer *os.File
+	var err error
 	if out == "" {
 		writer = os.Stdout
 	} else {
-		writer, err := os.Create(out)
+		writer, err = os.Create(out)
 		if err != nil {
 			return err
 		}
