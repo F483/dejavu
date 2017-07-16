@@ -47,14 +47,14 @@ func New(probabilistic bool, limit uint32, fpRatio float64) DejaVu {
 
 // ProcessPaths is equivalent to Process, only that file paths are given.
 // If - in inputs to use stdin and empty out to use stdout.
-func ProcessPaths(d DejaVu, filter bool, out string, inputs ...string) error {
+func ProcessPaths(d DejaVu, filter bool, out string, inputs ...string) (err error) {
 
 	// get output writer
 	var writer *os.File
 	if out == "" {
 		writer = os.Stdout
 	} else {
-		writer, err := os.Create(out)
+		writer, err = os.Create(out)
 		if err != nil {
 			return err
 		}
